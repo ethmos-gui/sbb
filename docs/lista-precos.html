@@ -173,6 +173,29 @@ body{font-family:var(--sans);color:var(--texto);background:var(--fundo);line-hei
 .btn-clear{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2)}
 .btn-clear:hover{background:rgba(255,255,255,.1);color:#fff}
 
+/* ── TABLE VIEW ── */
+.prod-table-wrap{overflow-x:auto;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:24px}
+.prod-table{width:100%;border-collapse:collapse;font-size:.82rem;font-family:var(--sans)}
+.prod-table thead th{background:var(--marinho);color:#fff;padding:10px 8px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2}
+.prod-table thead th.tbl-price{text-align:right}
+.prod-table tbody tr{border-bottom:1px solid var(--borda);cursor:pointer;transition:background .12s}
+.prod-table tbody tr:hover{background:var(--azul-bg)}
+.prod-table td{padding:6px 8px;vertical-align:middle;color:var(--texto)}
+.tbl-cover{width:48px;padding:4px}
+.tbl-cover img{width:36px;height:50px;object-fit:cover;border-radius:3px;display:block;background:#eee}
+.tbl-ean{font-family:'Courier New',monospace;color:var(--texto-claro);font-size:.78rem;white-space:nowrap}
+.tbl-desc{min-width:240px;line-height:1.3}
+.tbl-code{font-family:'Courier New',monospace;color:var(--marinho);font-size:.76rem;white-space:nowrap}
+.tbl-cat .cat-badge{font-size:.7rem;padding:2px 6px}
+.tbl-price{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl-price-promo{color:var(--laranja);font-weight:700}
+.tbl-qcx{text-align:center;color:var(--texto-claro);font-size:.78rem}
+.tbl-ped{width:70px}
+.tbl-ped .qty-input{width:60px;padding:5px 6px;border:1px solid var(--borda);border-radius:4px;font-size:.82rem;text-align:center;outline:none}
+.tbl-ped .qty-input:focus{border-color:var(--azul)}
+.prod-table tbody tr:has(.qty-input:not(:placeholder-shown)):not(:has(.qty-input[value=""])){background:#fff8e7}
+.prod-table tbody tr:has(.qty-input[value]:not([value=""])){background:#fff8e7}
+
 /* ── MODAL ORDER ── */
 .modal-order{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px;background:var(--azul-bg);border-radius:8px}
 .modal-order label{font-weight:600;color:var(--marinho);font-size:.9rem}
@@ -230,6 +253,8 @@ body{font-family:var(--sans);color:var(--texto);background:var(--fundo);line-hei
         <option value="TNL">TNL</option>
         <option value="RVR">RVR</option>
       </select>
+      <span class="filter-sep"></span>
+      <button class="filter-btn" id="btn-view" onclick="toggleView(this)" title="Alternar entre cards e tabela">&#9776; Tabela</button>
     </div>
   </div>
   <nav class="nav-tabs" id="nav" style="background:var(--marinho);border-bottom:1px solid rgba(255,255,255,.08)">
@@ -392,6 +417,8 @@ var activeTrad="all";
 var activeGroup="all";
 var activeNovo=false;
 var searchTerm="";
+var viewMode="cards";
+try{var savedView=localStorage.getItem("sbb_view");if(savedView==="table")viewMode="table";}catch(e){}
 
 function matchesCat(k){
   if(activeCat==="all")return true;
@@ -477,6 +504,39 @@ function renderCard(p){
    +'</div>';
 }
 
+function renderTableRow(p){
+  var hasDsc=p["$d"]&&p["$d"]<p["$"]&&p["$d"]>0;
+  return '<tr onclick="openModal(\''+p.e+'\')">'
+   +'<td class="tbl-cover"><img data-src="'+coverUrl(p.e)+'" data-ean="'+p.e+'" alt="" loading="lazy" onerror="tryFallback(this)"><span class="placeholder" style="display:none">\ud83d\udcd6</span></td>'
+   +'<td class="tbl-ean">'+p.e+'</td>'
+   +'<td class="tbl-desc">'+esc(p.d)+(p.n?' <span class="badge-novo">NOVO</span>':"")+'</td>'
+   +'<td class="tbl-code">'+esc(p.c)+'</td>'
+   +'<td class="tbl-cat">'+catBadge(p.k)+'</td>'
+   +'<td class="tbl-price">'+(hasDsc?'<span class="card-price-old">'+formatPrice(p["$"])+'</span>':formatPrice(p["$"]))+'</td>'
+   +'<td class="tbl-price tbl-price-promo">'+(hasDsc?formatPrice(p["$d"]):"\u2014")+'</td>'
+   +'<td class="tbl-qcx">'+(p.q||"\u2014")+'</td>'
+   +'<td class="tbl-ped" onclick="event.stopPropagation()"><input type="number" class="qty-input" data-ean="'+p.e+'" min="0" value="'+(getQty(p.e)||"")+'" onchange="setQty(this.dataset.ean,this.value)"></td>'
+   +'</tr>';
+}
+
+function renderTable(prods){
+  var html='<div class="prod-table-wrap"><table class="prod-table"><thead><tr>'
+    +'<th></th><th>EAN</th><th>Descri\u00e7\u00e3o</th><th>C\u00f3d. SBB</th><th>Categoria</th>'
+    +'<th class="tbl-price">Pre\u00e7o</th><th class="tbl-price">c/ desc.</th><th>Qtd/Cx</th><th>Pedido</th>'
+    +'</tr></thead><tbody>';
+  prods.forEach(function(p){html+=renderTableRow(p)});
+  html+='</tbody></table></div>';
+  return html;
+}
+
+function renderProds(prods){
+  if(viewMode==="table")return renderTable(prods);
+  var html='<div class="grid">';
+  prods.forEach(function(p){html+=renderCard(p)});
+  html+='</div>';
+  return html;
+}
+
 function render(){
   var filtered=filterProducts();
   document.getElementById("showing-count").textContent=filtered.length;
@@ -515,20 +575,26 @@ function render(){
     if(subOrder.length>1||(subOrder[0]&&subOrder[0]!=="")){
       subOrder.forEach(function(sg){
         if(sg)html+='<div class="sub-group-title">'+esc(sg)+" ("+subs[sg].length+")</div>";
-        html+='<div class="grid">';
-        subs[sg].forEach(function(p){html+=renderCard(p)});
-        html+='</div>';
+        html+=renderProds(subs[sg]);
       });
     }else{
-      html+='<div class="grid">';
-      prods.forEach(function(p){html+=renderCard(p)});
-      html+='</div>';
+      html+=renderProds(prods);
     }
     html+='</div>';
   });
 
   document.getElementById("catalog").innerHTML=html;
   lazyLoadImages();
+}
+
+function toggleView(btn){
+  viewMode=(viewMode==="cards"?"table":"cards");
+  try{localStorage.setItem("sbb_view",viewMode)}catch(e){}
+  if(btn){
+    btn.textContent=(viewMode==="cards"?"\u2630 Tabela":"\u25a6 Cards");
+    btn.classList.toggle("active",viewMode==="table");
+  }
+  render();
 }
 
 function lazyLoadImages(){
@@ -647,6 +713,11 @@ try{
   document.querySelector('.filter-btn[data-cat="all"]').classList.add("active");
   var selTrad=document.getElementById("sel-trad");
   if(selTrad)selTrad.value="all";
+  var btnView=document.getElementById("btn-view");
+  if(btnView){
+    btnView.textContent=(viewMode==="cards"?"☰ Tabela":"▦ Cards");
+    btnView.classList.toggle("active",viewMode==="table");
+  }
   renderNav();
   render();
 }catch(err){
