@@ -181,6 +181,19 @@
     font-size:.85rem;color:var(--ink-2);font-variant-numeric:tabular-nums;
   }
   @media (max-width:560px){ .race{grid-template-columns:1fr} }
+  .lens-tabs{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin:1.1rem 0}
+  .lens-result{
+    display:flex;align-items:center;justify-content:center;gap:1.1rem;flex-wrap:wrap;
+    min-height:5.4rem;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;padding:1rem 1.3rem;
+  }
+  .lens-result .big{
+    font-size:2.3rem;font-weight:700;line-height:1;
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    color:var(--accent-ink);
+  }
+  .lens-result .desc{color:var(--ink-2);font-size:.93rem;max-width:22rem}
+  .lens-swatch{width:3.2rem;height:3.2rem;border-radius:8px;border:1px solid var(--line);flex-shrink:0}
 
   /* ============ W2 TEXTO ============ */
   .txt-input{
@@ -440,6 +453,31 @@
     </div>
   </div>
   <div class="sec-head">
+    <h3>De 0 e 1 a informação: tudo depende do combinado</h3>
+    <p>Falta um elo. Interruptores abrem e fecham, bits formam padrões — mas onde nasce a <em>informação</em>? A resposta incomoda de tão simples: <strong>um padrão de bits, sozinho, não significa nada.</strong> O significado vem de um <strong>combinado de leitura</strong> — um acordo, feito de antemão, sobre como interpretar aquele padrão. É o que acontece com as próprias letras: o desenho <em>p-ã-o</em> só evoca comida para quem entrou no combinado chamado língua portuguesa.</p>
+    <p>O painel abaixo mostra <strong>o mesmo padrão de oito bits</strong> lido sob quatro combinados diferentes. No chip, nada muda — mudam os óculos de leitura.</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">Os mesmos 8 bits, quatro leituras — toque nos bits e troque os óculos</p>
+      <div class="bits-row" id="lensbits"></div>
+      <div class="lens-tabs" id="lenstabs">
+        <button class="toggle" data-lens="num" aria-pressed="true">Número</button>
+        <button class="toggle" data-lens="letra" aria-pressed="false">Letra</button>
+        <button class="toggle" data-lens="cor" aria-pressed="false">Tom de cinza</button>
+        <button class="toggle" data-lens="nota" aria-pressed="false">Nota musical</button>
+      </div>
+      <div class="lens-result" id="lensresult"></div>
+      <p class="note" style="margin-top:1.1rem">É por isso que o chip não precisa "entender" nada: ele só executa trocas de 0 e 1, na velocidade da eletricidade. Quem carrega o significado são as camadas de combinados empilhadas por cima — os programas. Até as ordens que o chip obedece são bits lidos sob mais um combinado ("este padrão manda somar"). Informação, no fundo, é isto: <strong>padrão + acordo de leitura</strong>.</p>
+    </div>
+  </div>
+  <div class="sec-head">
+    <h3>E como um padrão fica gravado no chip?</h3>
+    <p>Gravar é um ato físico. Escrever um byte é <strong>deixar oito interruptores microscópicos na posição combinada</strong>, cada grupo morando numa "casa" com endereço numerado — casa 0, casa 1, casa 2… Para gravar, o chip aplica um pulso de energia na casa certa; para ler, confere em que posição cada interruptor ficou.</p>
+    <p>Há dois jeitos de segurar a posição. Na <strong>memória de trabalho</strong> (a RAM), cada bit é uma caixinha de carga elétrica: cheia é <span class="mono">1</span>, vazia é <span class="mono">0</span>. As caixinhas vazam — o chip as reabastece milhares de vezes por segundo — e, sem energia, tudo evapora. Já no <strong>armazenamento</strong> (o SSD, o pendrive, a memória do celular), a carga fica presa atrás de uma parede isolante, e só entra ou sai com um empurrão forte de tensão: por isso o arquivo continua lá depois de desligar.</p>
+    <p>Um programa gravado é só isso: uma fileira de padrões nas casas numeradas. Ao rodar, o processador visita casa por casa e obedece cada padrão sob o combinado de instruções — milhões de casas, bilhões de visitas por segundo.</p>
+  </div>
+  <div class="sec-head">
     <h3>O chip de IA: a mesma física, outra estratégia</h3>
     <p>Um processador comum (a <strong>CPU</strong>) é um generalista: meia dúzia de núcleos muito rápidos e sofisticados, que resolvem tarefas variadas — planilha, música, navegador — <strong>uma depois da outra</strong>.</p>
     <p>Uma IA pede o contrário. O trabalho dela é quase todo <strong>uma única conta repetida bilhões de vezes</strong>: multiplicar entradas por parâmetros (a operação da Parte 4). E essas multiplicações não dependem umas das outras — podem acontecer <strong>todas ao mesmo tempo</strong>.</p>
@@ -478,7 +516,7 @@
     <div class="eyebrow">Parte 3 · A tradução do mundo</div>
     <h2>Letras, imagens e sons viram números</h2>
     <p>Se o computador só entende números, como ele lida com um texto ou uma foto? Simples: <strong>tudo é convertido em números</strong> antes de entrar na máquina.</p>
-    <p>Para texto, existe uma tabela universal (o Unicode) que dá um número para cada letra e símbolo do mundo. A palavra que aparece na tela é, por dentro, uma fila de números — e cada número, uma fila de bits.</p>
+    <p>Para texto, existe uma tabela universal (o Unicode) — o maior "combinado de leitura" do planeta, o mesmo da Parte 2 — que dá um número para cada letra e símbolo do mundo. A palavra que aparece na tela é, por dentro, uma fila de números — e cada número, uma fila de bits.</p>
   </div>
   <div class="wide">
     <div class="bench">
@@ -783,6 +821,85 @@
       rule.textContent = st.op === "AND"
         ? "Porta E: a saída só liga quando A e B estão ligados ao mesmo tempo."
         : "Porta OU: a saída liga quando pelo menos um dos dois está ligado.";
+    }
+    render();
+  })();
+
+  /* ---------- CHIP: mesmos bits, quatro leituras ---------- */
+  (function(){
+    var bits = [0,1,0,0,0,0,0,1]; // 65
+    var row = document.getElementById("lensbits");
+    var tabs = document.getElementById("lenstabs");
+    var result = document.getElementById("lensresult");
+    var lens = "num";
+
+    bits.forEach(function(b, i){
+      var pw = Math.pow(2, 7-i);
+      var cell = el("div","bitcell");
+      cell.appendChild(el("span","pw", String(pw)));
+      var btn = el("button","bitbtn", String(b));
+      btn.setAttribute("aria-pressed", b ? "true" : "false");
+      btn.setAttribute("aria-label","Bit que vale "+pw);
+      btn.addEventListener("click", function(){
+        bits[i] = bits[i] ? 0 : 1;
+        btn.textContent = String(bits[i]);
+        btn.setAttribute("aria-pressed", bits[i] ? "true" : "false");
+        render();
+      });
+      cell.appendChild(btn);
+      row.appendChild(cell);
+    });
+
+    tabs.querySelectorAll("button").forEach(function(b){
+      b.addEventListener("click", function(){
+        lens = b.getAttribute("data-lens");
+        tabs.querySelectorAll("button").forEach(function(x){
+          x.setAttribute("aria-pressed", x === b ? "true" : "false");
+        });
+        render();
+      });
+    });
+
+    var NOTAS = ["Dó","Dó♯","Ré","Ré♯","Mi","Fá","Fá♯","Sol","Sol♯","Lá","Lá♯","Si"];
+    var CTRL = { 7:"um toque de aviso — o “bip”", 9:"um salto de tabulação", 10:"a ordem “pule para a próxima linha”", 13:"a ordem “volte ao início da linha”" };
+
+    function render(){
+      var v = 0;
+      bits.forEach(function(b,i){ if(b) v += Math.pow(2,7-i); });
+      result.innerHTML = "";
+      var big = el("span","big"), desc = el("span","desc");
+      if(lens === "num"){
+        big.textContent = String(v);
+        desc.textContent = "Lido como quantidade, este padrão é o número "+v+" — o combinado da Parte 1.";
+      } else if(lens === "letra"){
+        if(CTRL[v]){
+          big.textContent = "␛";
+          desc.textContent = "No combinado do texto (Unicode), o padrão "+v+" não desenha nada: é "+CTRL[v]+" — um sinal de bastidor.";
+        } else if((v >= 32 && v <= 126) || v >= 160){
+          var ch = v === 32 ? "␣" : String.fromCharCode(v);
+          big.textContent = ch;
+          desc.textContent = v === 32
+            ? "No combinado do texto (Unicode), o padrão 32 é o espaço entre palavras."
+            : "No combinado do texto (Unicode), este mesmo padrão vira o caractere “"+String.fromCharCode(v)+"”.";
+        } else {
+          big.textContent = "␀";
+          desc.textContent = "No combinado do texto, o padrão "+v+" é um sinal de controle — instruções de bastidor, sem desenho na tela.";
+        }
+      } else if(lens === "cor"){
+        var sw = el("span","lens-swatch");
+        sw.style.background = "rgb("+v+","+v+","+v+")";
+        result.appendChild(sw);
+        var tom = v < 64 ? "um cinza bem escuro" : v < 128 ? "um cinza escuro" : v < 192 ? "um cinza claro" : "um tom quase branco";
+        big.textContent = String(v);
+        desc.textContent = "Lido como pixel, é brilho "+v+" de 255 — "+tom+", como na grade da Parte 3.";
+      } else {
+        var nome = NOTAS[v % 12], oit = Math.floor(v/12) - 1;
+        big.textContent = nome + " " + oit;
+        var extra = (v < 21 || v > 108) ? " — fora do teclado de um piano" : "";
+        desc.textContent = "No combinado MIDI dos instrumentos eletrônicos, o padrão "+v+" é a nota "+nome+" da oitava "+oit+extra+".";
+      }
+      result.appendChild(big);
+      result.appendChild(desc);
     }
     render();
   })();
