@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Do Bit à Inteligência Artificial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --ground:#F5F6F8;
+    --panel:#FFFFFF;
+    --panel-2:#EDEFF3;
+    --ink:#1B1E26;
+    --ink-2:#5A6172;
+    --line:#D9DDE4;
+    --accent:#2E5BFF;
+    --accent-ink:#1E3FB8;
+    --accent-soft:#E3E9FF;
+    --amber:#B45309;
+    --amber-soft:#FDEBD0;
+    --green:#0E9F6E;
+    --green-soft:#D9F2E8;
+    --red:#D64545;
+    --red-soft:#FBE3E3;
+    --shadow:0 1px 2px rgba(20,24,40,.06),0 6px 24px rgba(20,24,40,.07);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#12141A;
+      --panel:#1B1E26;
+      --panel-2:#232733;
+      --ink:#E9EBF2;
+      --ink-2:#9AA1B2;
+      --line:#31374A;
+      --accent:#7C96FF;
+      --accent-ink:#A9BAFF;
+      --accent-soft:#232E55;
+      --amber:#FFB454;
+      --amber-soft:#3A2E1A;
+      --green:#3DDC97;
+      --green-soft:#173327;
+      --red:#FF8080;
+      --red-soft:#3A2020;
+      --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#12141A;
+    --panel:#1B1E26;
+    --panel-2:#232733;
+    --ink:#E9EBF2;
+    --ink-2:#9AA1B2;
+    --line:#31374A;
+    --accent:#7C96FF;
+    --accent-ink:#A9BAFF;
+    --accent-soft:#232E55;
+    --amber:#FFB454;
+    --amber-soft:#3A2E1A;
+    --green:#3DDC97;
+    --green-soft:#173327;
+    --red:#FF8080;
+    --red-soft:#3A2020;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 28px rgba(0,0,0,.35);
+  }
+
+  /* ============ BASE ============ */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    font-size:1.0625rem;
+    line-height:1.65;
+  }
+  ::selection{background:var(--accent-soft)}
+  .serif{font-family:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif}
+  .mono{font-family:"Cascadia Code",Consolas,ui-monospace,"SF Mono",Menlo,monospace}
+
+  .wrap{max-width:46rem;margin:0 auto;padding:0 1.25rem}
+  .wide{max-width:58rem;margin:2rem auto;padding:0 1.25rem}
+
+  h1,h2,h3{font-family:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;line-height:1.2;text-wrap:balance;font-weight:600}
+  h1{font-size:clamp(2.2rem,6vw,3.4rem);margin:.5rem 0 1rem}
+  h2{font-size:clamp(1.55rem,4vw,2rem);margin:0 0 1rem}
+  h3{font-size:1.2rem;margin:1.6rem 0 .5rem}
+  p{margin:0 0 1.1rem}
+  a{color:var(--accent-ink)}
+  strong{font-weight:650}
+
+  .eyebrow{
+    font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent-ink);margin-bottom:.4rem;
+    display:flex;align-items:center;gap:.6rem;
+  }
+  .eyebrow::after{content:"";height:1px;flex:1;background:var(--line)}
+
+  .lead{font-size:1.2rem;color:var(--ink-2)}
+  .note{font-size:.85rem;color:var(--ink-2)}
+
+  section{padding:3.5rem 0 1rem}
+  .sec-head{max-width:46rem;margin:0 auto;padding:0 1.25rem}
+
+  /* ============ HERO ============ */
+  header.hero{padding:4.5rem 0 2.5rem;border-bottom:1px solid var(--line)}
+  .kicker{font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+  .bitstrip{
+    display:flex;flex-wrap:wrap;gap:.3rem;margin:1.6rem 0 0;
+  }
+  .bitstrip span{
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:.85rem;line-height:1;
+    padding:.35rem .45rem;border-radius:4px;
+    background:var(--panel-2);color:var(--ink-2);
+    transition:background .4s,color .4s;
+  }
+  .bitstrip span.on{background:var(--accent-soft);color:var(--accent-ink)}
+
+  /* ============ PAINEL / BANCADA ============ */
+  .bench{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:1.6rem;
+    overflow-x:auto;
+  }
+  .bench + .bench{margin-top:1.25rem}
+  .bench-label{
+    font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-2);margin:0 0 1rem;
+  }
+
+  /* ============ W1 BITS ============ */
+  .bits-row{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.2rem}
+  .bitcell{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+  .bitcell .pw{font-size:.7rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .bitbtn{
+    width:3rem;height:3.4rem;border-radius:8px;border:2px solid var(--line);
+    background:var(--panel-2);color:var(--ink-2);
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;font-size:1.35rem;font-weight:600;
+    cursor:pointer;transition:transform .08s,background .15s,border-color .15s;
+  }
+  .bitbtn:hover{transform:translateY(-2px)}
+  .bitbtn:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .bitbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  :root[data-theme="dark"] .bitbtn[aria-pressed="true"],
+  .dark-btn-fix{color:#fff}
+  .bits-result{
+    text-align:center;font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-variant-numeric:tabular-nums;
+  }
+  .bits-result .sum{color:var(--ink-2);font-size:.95rem;min-height:1.4em;display:block}
+  .bits-result .val{font-size:2.6rem;font-weight:700;color:var(--accent-ink)}
+
+  /* ============ CHIP ============ */
+  .flowline{stroke-dasharray:7 9;animation:flowdash .55s linear infinite}
+  @keyframes flowdash{to{stroke-dashoffset:-16}}
+  @media (prefers-reduced-motion: reduce){ .flowline{animation:none} }
+  .gate-row{display:flex;gap:1.6rem;align-items:flex-start;justify-content:center;flex-wrap:wrap;margin-top:1.2rem}
+  .gate-op{display:flex;flex-direction:column;gap:.5rem;padding-top:.85rem}
+  .lamp{
+    width:3.4rem;height:3.4rem;border-radius:50%;
+    border:2px solid var(--line);background:var(--panel-2);
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:1.35rem;font-weight:700;color:var(--ink-2);
+  }
+  .lamp.on{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+  .race{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.4rem}
+  .racecol{border:1px solid var(--line);border-radius:10px;padding:1rem;background:var(--panel-2)}
+  .racecol h4{margin:0 0 .7rem;font-size:.88rem;font-family:"Segoe UI",system-ui,sans-serif}
+  .racegrid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+  .racegrid i{aspect-ratio:1;border-radius:2px;background:var(--line);display:block}
+  .racegrid i.done{background:var(--accent)}
+  .racegrid.gpu i.done{background:var(--green)}
+  .steps{
+    margin-top:.6rem;font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:.85rem;color:var(--ink-2);font-variant-numeric:tabular-nums;
+  }
+  @media (max-width:560px){ .race{grid-template-columns:1fr} }
+
+  /* ============ W2 TEXTO ============ */
+  .txt-input{
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-size:1.3rem;padding:.55rem .8rem;border-radius:8px;
+    border:2px solid var(--line);background:var(--panel-2);color:var(--ink);
+    width:12ch;text-align:center;
+  }
+  .charcards{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.2rem}
+  .charcard{
+    border:1px solid var(--line);border-radius:8px;padding:.7rem .8rem;min-width:5.4rem;
+    text-align:center;background:var(--panel-2);
+  }
+  .charcard .ch{font-size:1.6rem;font-weight:700;font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif}
+  .charcard .cd{font-size:.85rem;color:var(--amber);font-weight:700;font-variant-numeric:tabular-nums}
+  .charcard .bn{font-size:.72rem;color:var(--accent-ink);font-family:"Cascadia Code",Consolas,ui-monospace,monospace;letter-spacing:.05em}
+
+  /* ============ W3 PIXELS ============ */
+  .pixwrap{display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start}
+  .pixgrid{
+    display:grid;grid-template-columns:repeat(12,1fr);
+    width:min(100%,380px);aspect-ratio:1;
+    border:1px solid var(--line);border-radius:8px;overflow:hidden;
+    cursor:crosshair;flex-shrink:0;
+  }
+  .pixgrid div{
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(6px,1.6vw,9px);font-family:Consolas,ui-monospace,monospace;
+    color:transparent;user-select:none;
+  }
+  .pixgrid.shownums div{color:var(--px-ink,#555)}
+  .pixgrid div:hover{outline:2px solid var(--accent);outline-offset:-2px}
+  .pixside{flex:1;min-width:14rem}
+  .pixreadout{
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:.8rem 1rem;margin-bottom:1rem;font-variant-numeric:tabular-nums;min-height:3.2em;
+  }
+  .toggle{
+    display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel-2);color:var(--ink);
+    border-radius:99px;padding:.45rem 1rem;font-size:.92rem;font-weight:600;
+  }
+  .toggle[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+
+  /* ============ SLIDERS ============ */
+  .ctl{display:flex;align-items:center;gap:.9rem;margin:.5rem 0;flex-wrap:wrap}
+  .ctl label{font-size:.9rem;font-weight:600;min-width:8.5rem}
+  .ctl input[type=range]{flex:1;min-width:10rem;accent-color:var(--accent)}
+  .ctl output{
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-variant-numeric:tabular-nums;font-weight:700;min-width:4ch;text-align:right;
+  }
+  .ctl.amber input[type=range]{accent-color:var(--amber)}
+  .ctl.amber output{color:var(--amber)}
+  .ctl.blue output{color:var(--accent-ink)}
+
+  svg{max-width:100%;height:auto;display:block}
+  svg text{font-family:"Segoe UI",system-ui,sans-serif}
+
+  /* ============ W5 TREINO ============ */
+  .train-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:.6rem}
+  .btn{
+    border:none;border-radius:8px;padding:.6rem 1.3rem;font-size:.95rem;font-weight:700;
+    background:var(--accent);color:#fff;cursor:pointer;
+  }
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line)}
+  .errbox{
+    display:flex;align-items:center;gap:.6rem;flex:1;min-width:12rem;
+  }
+  .errbox .bar{flex:1;height:10px;border-radius:5px;background:var(--panel-2);overflow:hidden}
+  .errbox .bar i{display:block;height:100%;background:var(--red);border-radius:5px;transition:width .2s}
+  .errbox output{font-family:Consolas,ui-monospace,monospace;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums}
+
+  /* ============ W6 PRÓXIMA PALAVRA ============ */
+  .sentence{
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    font-size:1.45rem;line-height:1.5;margin-bottom:1.2rem;min-height:2.2em;
+  }
+  .sentence .cursor{
+    display:inline-block;width:.55em;height:1.15em;vertical-align:-0.18em;
+    background:var(--accent);border-radius:2px;margin-left:.15em;
+    animation:blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0}}
+  @media (prefers-reduced-motion: reduce){
+    .sentence .cursor{animation:none}
+  }
+  .probbars{display:flex;flex-direction:column;gap:.5rem}
+  .probbar{
+    position:relative;border:1px solid var(--line);border-radius:8px;
+    background:var(--panel-2);cursor:pointer;overflow:hidden;
+    padding:0;text-align:left;height:2.8rem;
+  }
+  .probbar .fill{
+    position:absolute;inset:0;width:0;background:var(--accent-soft);
+    transition:width .5s cubic-bezier(.2,.7,.3,1);
+  }
+  .probbar .lbl{
+    position:relative;display:flex;justify-content:space-between;align-items:center;
+    height:100%;padding:0 1rem;font-size:1rem;color:var(--ink);
+  }
+  .probbar .lbl b{font-weight:650}
+  .probbar .lbl .pc{font-family:Consolas,ui-monospace,monospace;color:var(--accent-ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .probbar:hover{border-color:var(--accent)}
+  .prob-note{margin-top:1rem}
+
+  /* ============ W7 ESCALA ============ */
+  .scalerows{display:flex;flex-direction:column;gap:.9rem}
+  .scalerow{display:grid;grid-template-columns:minmax(9rem,14rem) 1fr;gap:1rem;align-items:center}
+  .scalerow .nm{font-size:.9rem;font-weight:600;line-height:1.3}
+  .scalerow .nm small{display:block;font-weight:400;color:var(--ink-2)}
+  .scalerow .tr{height:14px;background:var(--panel-2);border-radius:7px;position:relative}
+  .scalerow .tr i{
+    position:absolute;inset:0;width:var(--w);border-radius:7px;background:var(--accent);
+  }
+  .scalerow .tr b{
+    position:absolute;left:calc(var(--w) + .5rem);top:50%;transform:translateY(-50%);
+    font-family:Consolas,ui-monospace,monospace;font-size:.78rem;font-weight:700;
+    color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums;
+  }
+  .scalerow.brain .tr i{background:var(--amber)}
+  @media (max-width:560px){
+    .scalerow{grid-template-columns:1fr}
+    .scalerow .tr{margin-top:.1rem}
+  }
+
+  /* ============ CARDS ============ */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:1.3rem 1.4rem;box-shadow:var(--shadow);
+  }
+  .card h3{margin:0 0 .5rem;font-size:1.1rem}
+  .card p{margin:0;font-size:.95rem;color:var(--ink-2)}
+  .card .tag{
+    display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    padding:.2rem .6rem;border-radius:99px;margin-bottom:.7rem;
+  }
+  .tag.sim{background:var(--green-soft);color:var(--green)}
+  .tag.nao{background:var(--red-soft);color:var(--red)}
+  .tag.meio{background:var(--amber-soft);color:var(--amber)}
+
+  /* ============ TIMELINE ============ */
+  .timeline{position:relative;padding-left:2rem;margin-top:2rem}
+  .timeline::before{
+    content:"";position:absolute;left:.5rem;top:.4rem;bottom:.4rem;width:2px;
+    background:var(--line);border-radius:1px;
+  }
+  .era{margin:2.6rem 0 1.2rem;position:relative}
+  .era::before{
+    content:"";position:absolute;left:-1.94rem;top:.35rem;width:14px;height:14px;border-radius:50%;
+    background:var(--accent);border:3px solid var(--ground);
+  }
+  .era h3{
+    margin:0;font-size:1.35rem;
+  }
+  .era .span{font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
+  .tl-item{
+    position:relative;margin:1.1rem 0;padding:1rem 1.2rem;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    display:grid;grid-template-columns:4.2rem 1fr;gap:1rem;
+    opacity:1;transform:none;
+  }
+  .tl-item::before{
+    content:"";position:absolute;left:-1.78rem;top:1.35rem;width:9px;height:9px;border-radius:50%;
+    background:var(--line);
+  }
+  .tl-item .yr{
+    font-family:"Cascadia Code",Consolas,ui-monospace,monospace;
+    font-weight:700;color:var(--accent-ink);font-size:1rem;padding-top:.1rem;
+    font-variant-numeric:tabular-nums;
+  }
+  .tl-item .bd b{font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;font-size:1.06rem;font-weight:650;display:block;margin-bottom:.15rem}
+  .tl-item .bd p{margin:0;font-size:.93rem;color:var(--ink-2)}
+  .tl-item.hl{border-color:var(--accent)}
+  .tl-item.hl::before{background:var(--accent)}
+  @media (max-width:560px){
+    .tl-item{grid-template-columns:1fr;gap:.2rem}
+  }
+  .anim .tl-item{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s}
+  .anim .tl-item.vis{opacity:1;transform:none}
+  @media (prefers-reduced-motion: reduce){
+    .anim .tl-item{opacity:1;transform:none;transition:none}
+  }
+
+  footer{
+    border-top:1px solid var(--line);margin-top:4rem;padding:2rem 0 3rem;
+    color:var(--ink-2);font-size:.88rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Uma introdução para quem nunca abriu o capô</div>
+    <h1>Do Bit à Inteligência&nbsp;Artificial</h1>
+    <p class="lead">Toda inteligência artificial — do corretor do celular ao ChatGPT — é construída sobre a coisa mais simples que existe na computação: um interruptor que liga e desliga. Esta página percorre o caminho inteiro, do interruptor até a máquina que escreve, e termina com a linha do tempo dos momentos que trouxeram a IA até aqui.</p>
+    <div class="bitstrip" id="bitstrip" aria-hidden="true"></div>
+  </div>
+</header>
+
+<!-- ============ PARTE 1 ============ -->
+<section id="p1">
+  <div class="sec-head">
+    <div class="eyebrow">Parte 1 · O interruptor</div>
+    <h2>Tudo começa com 0 e 1</h2>
+    <p>Um computador não conhece letras, cores nem sons. Ele só conhece <strong>duas situações</strong>: passa corrente ou não passa. Chamamos isso de <strong>bit</strong> — um dígito que vale <span class="mono">0</span> ou <span class="mono">1</span>.</p>
+    <p>Um bit sozinho diz pouco. Mas bits em grupo formam números: cada posição vale o dobro da anterior (1, 2, 4, 8, 16…), e o número final é a soma das posições ligadas. Com 8 bits dá para formar 256 números diferentes.</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">Experimente — toque nos bits para ligar e desligar</p>
+      <div class="bits-row" id="bitsrow"></div>
+      <div class="bits-result">
+        <span class="sum" id="bitsum"></span>
+        <span class="val" id="bitval">74</span>
+      </div>
+    </div>
+  </div>
+  <div class="sec-head">
+    <p class="note">É exatamente assim que o computador guarda qualquer número: um punhado de interruptores. Mais bits, números maiores e mais precisos — o princípio não muda.</p>
+  </div>
+</section>
+
+<!-- ============ PARTE 2: O CHIP ============ -->
+<section id="chip">
+  <div class="sec-head">
+    <div class="eyebrow">Parte 2 · O chip</div>
+    <h2>O chip: onde a energia vira 0 e 1</h2>
+    <p>O interruptor da Parte 1 não é uma metáfora — ele existe, é físico e tem nome: <strong>transistor</strong>. É um interruptor sem nenhuma peça móvel, gravado numa lâmina de silício. Um toque de energia no seu <strong>portão</strong> abre a passagem, e a corrente elétrica atravessa: isso é o <span class="mono">1</span>. Sem energia no portão, a passagem fecha: <span class="mono">0</span>.</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">O transistor — um interruptor acionado por eletricidade</p>
+      <svg id="transistor" viewBox="0 0 560 165" role="img" aria-label="Diagrama de um transistor: a corrente só passa quando o portão recebe energia"></svg>
+      <div style="text-align:center;margin-top:.5rem">
+        <button class="toggle" id="gatebtn" aria-pressed="false">Aplicar energia no portão</button>
+      </div>
+      <p class="note" style="margin-top:1.1rem">Como o interruptor é acionado por eletricidade — e não por um dedo —, um transistor pode ligar e desligar outro, bilhões de vezes por segundo. Um chip de celular carrega cerca de <strong>20 bilhões</strong> deles, cada um menor que um vírus. No fundo, é só isso que um chip faz: abre e fecha passagens de energia — em quantidade e velocidade inimagináveis.</p>
+    </div>
+    <div class="bench">
+      <p class="bench-label">De interruptores a decisões: as portas lógicas</p>
+      <p style="font-size:.95rem;margin-bottom:0">Transistores combinados formam <strong>portas lógicas</strong> — circuitos que olham dois sinais e decidem a saída segundo uma regra. Empilhadas aos milhões, essas portas somam, comparam e multiplicam: toda a matemática desta página nasce daqui.</p>
+      <div class="gate-row">
+        <div class="bitcell"><span class="pw">entrada A</span><button class="bitbtn" id="gA" aria-pressed="true">1</button></div>
+        <div class="bitcell"><span class="pw">entrada B</span><button class="bitbtn" id="gB" aria-pressed="false">0</button></div>
+        <div class="gate-op">
+          <button class="toggle" id="opAND" aria-pressed="true">porta E</button>
+          <button class="toggle" id="opOR" aria-pressed="false">porta OU</button>
+        </div>
+        <div class="bitcell"><span class="pw">saída</span><div class="lamp" id="glamp">0</div></div>
+      </div>
+      <p class="note" id="gaterule" style="text-align:center;margin-top:1rem"></p>
+    </div>
+  </div>
+  <div class="sec-head">
+    <h3>O chip de IA: a mesma física, outra estratégia</h3>
+    <p>Um processador comum (a <strong>CPU</strong>) é um generalista: meia dúzia de núcleos muito rápidos e sofisticados, que resolvem tarefas variadas — planilha, música, navegador — <strong>uma depois da outra</strong>.</p>
+    <p>Uma IA pede o contrário. O trabalho dela é quase todo <strong>uma única conta repetida bilhões de vezes</strong>: multiplicar entradas por parâmetros (a operação da Parte 4). E essas multiplicações não dependem umas das outras — podem acontecer <strong>todas ao mesmo tempo</strong>.</p>
+    <p>O chip de IA aposta nisso: em vez de poucos núcleos geniais, <strong>milhares de núcleos simples</strong> trabalhando em paralelo. As <strong>GPUs</strong> nasceram para desenhar videogames — cada pixel da tela é uma continha independente, exatamente o mesmo formato de problema. Em 2012, pesquisadores treinaram uma rede neural em GPUs e destravaram a era atual (o AlexNet, na linha do tempo).</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">A corrida — as mesmas 100 multiplicações, dois chips</p>
+      <div class="race">
+        <div class="racecol">
+          <h4>Processador comum (CPU) — 4 núcleos</h4>
+          <div class="racegrid" id="cpugrid"></div>
+          <div class="steps" id="cpusteps">rodadas: 0</div>
+        </div>
+        <div class="racecol">
+          <h4>Chip de IA (GPU) — 100 núcleos</h4>
+          <div class="racegrid gpu" id="gpugrid"></div>
+          <div class="steps" id="gpusteps">rodadas: 0</div>
+        </div>
+      </div>
+      <div class="train-row">
+        <button class="btn" id="racebtn">Disparar as 100 multiplicações</button>
+        <span class="note" id="racemsg"></span>
+      </div>
+      <p class="note" style="margin-top:1rem">Cada quadradinho é uma multiplicação; cada núcleo resolve uma por rodada. Os dois chegam ao mesmo resultado — mas um chega 25 vezes antes. Num modelo real são bilhões de contas: a diferença vira meses contra horas.</p>
+    </div>
+  </div>
+  <div class="sec-head">
+    <p class="note">Hoje existem chips desenhados exclusivamente para IA (as TPUs do Google, as NPUs dos celulares). Além do paralelismo, dois truques: fazer as contas com <strong>menos bits por número</strong> — 8 em vez de 32, porque para a IA uma boa aproximação basta (é a chamada <em>quantização</em>) — e colar a memória ao processador, para que os números cheguem aos núcleos sem fila. O preço da escala é a energia: os grandes centros de dados de IA já consomem eletricidade na casa de cidades inteiras.</p>
+  </div>
+</section>
+
+<!-- ============ PARTE 2 ============ -->
+<section id="p2">
+  <div class="sec-head">
+    <div class="eyebrow">Parte 3 · A tradução do mundo</div>
+    <h2>Letras, imagens e sons viram números</h2>
+    <p>Se o computador só entende números, como ele lida com um texto ou uma foto? Simples: <strong>tudo é convertido em números</strong> antes de entrar na máquina.</p>
+    <p>Para texto, existe uma tabela universal (o Unicode) que dá um número para cada letra e símbolo do mundo. A palavra que aparece na tela é, por dentro, uma fila de números — e cada número, uma fila de bits.</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">Digite uma palavra e veja o que o computador vê</p>
+      <input class="txt-input" id="txtin" maxlength="8" value="OLÁ" aria-label="Palavra para converter em números">
+      <div class="charcards" id="charcards"></div>
+    </div>
+    <div class="bench">
+      <p class="bench-label">Uma imagem também é só uma tabela de números</p>
+      <div class="pixwrap">
+        <div class="pixgrid" id="pixgrid" aria-label="Imagem de 12 por 12 pixels"></div>
+        <div class="pixside">
+          <div class="pixreadout" id="pixread">Passe o dedo ou o mouse sobre os quadradinhos.</div>
+          <button class="toggle" id="pixtoggle" aria-pressed="false">Mostrar os números</button>
+          <p class="note" style="margin-top:1rem">Cada quadradinho (<em>pixel</em>) guarda um número de 0 (preto) a 255 (branco). Esta imagem minúscula tem 144 números. Uma foto de celular tem mais de 12 milhões — e uma foto colorida guarda três números por pixel (vermelho, verde e azul).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-head">
+    <p>Som segue a mesma lógica: o microfone mede a vibração do ar milhares de vezes por segundo e anota cada medida como um número. <strong>Texto, imagem, som, vídeo — para a máquina, é tudo a mesma coisa: listas de números.</strong> E é por isso que uma mesma tecnologia consegue lidar com todos eles.</p>
+  </div>
+</section>
+
+<!-- ============ PARTE 3 ============ -->
+<section id="p3">
+  <div class="sec-head">
+    <div class="eyebrow">Parte 4 · Dentro da máquina</div>
+    <h2>O que há dentro de uma IA: parâmetros</h2>
+    <p>Uma IA moderna é uma grande calculadora de números — chamada de <strong>rede neural</strong>, numa analogia (bem solta) com o cérebro. A peça básica é simples: um número entra, é <strong>multiplicado por um número interno</strong>, e o resultado sai. Esse número interno é um <strong>parâmetro</strong> — também chamado de <em>peso</em>.</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">A menor "rede neural" possível: 1 entrada, 1 parâmetro, 1 saída</p>
+      <div class="ctl blue">
+        <label for="nin">Entrada</label>
+        <input type="range" id="nin" min="-3" max="3" step="0.1" value="2">
+        <output id="ninv">2.0</output>
+      </div>
+      <div class="ctl amber">
+        <label for="nw">Parâmetro</label>
+        <input type="range" id="nw" min="-2" max="2" step="0.1" value="0.5">
+        <output id="nwv">0.5</output>
+      </div>
+      <svg id="neuron" viewBox="0 0 560 170" role="img" aria-label="Diagrama: entrada multiplicada por um parâmetro produz a saída"></svg>
+      <p class="note">A espessura da linha mostra a força do parâmetro; a cor muda quando ele fica negativo. A saída é sempre: entrada × parâmetro.</p>
+    </div>
+    <div class="bench">
+      <p class="bench-label">Ligando muitas dessas peças em camadas…</p>
+      <svg id="net" viewBox="0 0 560 240" role="img" aria-label="Rede neural com várias camadas de nós conectados"></svg>
+      <p class="note">Esta redezinha tem 55 parâmetros — cada linha é um. Os modelos que conversam com pessoas têm <strong>centenas de bilhões</strong>. A escala é difícil de imaginar:</p>
+      <div class="scalerows" id="scalerows" style="margin-top:1.2rem"></div>
+      <p class="note" style="margin-top:1rem">Escala logarítmica: cada passo para a direita multiplica por 10. A comparação com o cérebro é só de ordem de grandeza — sinapses e parâmetros são coisas muito diferentes.</p>
+    </div>
+  </div>
+  <div class="sec-head">
+    <p>Guarde a ideia central: <strong>todo o "conhecimento" de uma IA está nos valores desses parâmetros</strong> — bilhões de numerozinhos, cada um guardado em bits, como os da Parte 1. Não há regras escritas, nem um banco de frases prontas. Só números.</p>
+  </div>
+</section>
+
+<!-- ============ PARTE 4 ============ -->
+<section id="p4">
+  <div class="sec-head">
+    <div class="eyebrow">Parte 5 · O aprendizado</div>
+    <h2>Aprender é ajustar</h2>
+    <p>Se o conhecimento está nos parâmetros, aprender é <strong>encontrar os valores certos</strong> para eles. Ninguém digita esses valores à mão: a máquina os ajusta sozinha, comparando suas respostas com exemplos reais e corrigindo o erro, um pouquinho de cada vez, milhões de vezes.</p>
+    <p>O painel abaixo mostra a versão mais simples possível desse processo. Os pontos são os exemplos; a reta é o "palpite" do modelo, controlado por um único parâmetro.</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">Ajuste o parâmetro e tente reduzir o erro — ou deixe a máquina treinar</p>
+      <svg id="fitplot" viewBox="0 0 560 300" role="img" aria-label="Gráfico com pontos de exemplo e uma reta ajustável"></svg>
+      <div class="ctl amber">
+        <label for="fw">Parâmetro</label>
+        <input type="range" id="fw" min="-0.5" max="2" step="0.01" value="0.1">
+        <output id="fwv">0.10</output>
+      </div>
+      <div class="train-row">
+        <button class="btn" id="trainbtn">Treinar automaticamente</button>
+        <div class="errbox">
+          <span class="note" style="white-space:nowrap">Erro médio</span>
+          <div class="bar"><i id="errbar"></i></div>
+          <output id="errout">—</output>
+        </div>
+      </div>
+      <p class="note" style="margin-top:1rem">O botão faz o que o treinamento real faz: mede o erro, empurra o parâmetro na direção que o diminui, e repete. Num modelo de verdade são bilhões de parâmetros ajustados ao mesmo tempo, contra trilhões de palavras de exemplo — por isso o treinamento exige supercomputadores e meses de cálculo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PARTE 5 ============ -->
+<section id="p5">
+  <div class="sec-head">
+    <div class="eyebrow">Parte 6 · A linguagem</div>
+    <h2>O truque por trás do ChatGPT: prever a próxima palavra</h2>
+    <p>E o que exatamente um modelo de linguagem aprende a fazer? Uma única coisa, repetida sem parar: <strong>dado um texto, prever qual palavra vem a seguir</strong> — atribuindo uma probabilidade a cada palavra possível.</p>
+    <p>Para prever bem a próxima palavra de qualquer texto do mundo, o modelo é obrigado a absorver gramática, fatos, estilos e raciocínios inteiros. A conversa que parece tão natural é isso: uma previsão de cada vez, palavra após palavra.</p>
+  </div>
+  <div class="wide">
+    <div class="bench">
+      <p class="bench-label">Escolha a próxima palavra — as barras mostram a "aposta" do modelo</p>
+      <div class="sentence"><span id="senttext"></span><span class="cursor"></span></div>
+      <div class="probbars" id="probbars"></div>
+      <div class="prob-note">
+        <button class="btn ghost" id="probreset" hidden>Recomeçar</button>
+        <p class="note" style="margin-top:.8rem">Probabilidades ilustrativas, para mostrar o mecanismo. Repare: quase sempre há mais de uma continuação razoável — por isso a mesma pergunta pode gerar respostas diferentes, e por isso o modelo às vezes segue por um caminho errado com toda a confiança (as chamadas <em>alucinações</em>).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PARTE 6 ============ -->
+<section id="p6">
+  <div class="sec-head">
+    <div class="eyebrow">Parte 7 · O balanço</div>
+    <h2>O que isso significa — e o que não significa</h2>
+  </div>
+  <div class="wide">
+    <div class="cards">
+      <div class="card">
+        <span class="tag sim">O que é</span>
+        <h3>Um previsor de padrões colossal</h3>
+        <p>Bilhões de parâmetros ajustados sobre quase tudo o que a humanidade já escreveu. Excelente para redigir, resumir, traduzir, explicar e organizar ideias.</p>
+      </div>
+      <div class="card">
+        <span class="tag nao">O que não é</span>
+        <h3>Uma mente que sabe o que diz</h3>
+        <p>O modelo não consulta a verdade; ele produz a continuação mais provável. Erra com fluência e convicção — toda resposta importante merece verificação humana.</p>
+      </div>
+      <div class="card">
+        <span class="tag meio">O que fica com as pessoas</span>
+        <h3>O julgamento</h3>
+        <p>Definir a pergunta, avaliar a resposta e decidir o que fazer com ela. A ferramenta amplifica quem a usa — não substitui o discernimento de quem decide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIMELINE ============ -->
+<section id="tl">
+  <div class="sec-head">
+    <div class="eyebrow">Linha do tempo</div>
+    <h2>Oito décadas em uma página</h2>
+    <p>A IA não nasceu em 2022. A história alterna promessas, invernos e saltos — e quase tudo desta página foi inventado décadas atrás, esperando os computadores (e os dados) alcançarem a ideia.</p>
+  </div>
+  <div class="wide">
+    <div class="timeline anim" id="timeline"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Material didático introdutório. Diagramas e probabilidades simplificados de propósito — o objetivo é a intuição, não o rigor técnico. Formato visual inspirado no artigo interativo <em>"Quantization from the ground up"</em> (blog da ngrok).</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- util ---------- */
+  function el(tag, cls, txt){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(txt !== undefined) e.textContent = txt;
+    return e;
+  }
+  function fmt1(x){ return (Math.round(x*10)/10).toFixed(1).replace(".",","); }
+  function fmt2(x){ return (Math.round(x*100)/100).toFixed(2).replace(".",","); }
+
+  /* ---------- HERO: faixa de bits ---------- */
+  (function(){
+    var strip = document.getElementById("bitstrip");
+    var N = 40, spans = [];
+    for(var i=0;i<N;i++){
+      var s = el("span", null, Math.random()<0.4 ? "1" : "0");
+      if(s.textContent==="1") s.classList.add("on");
+      strip.appendChild(s); spans.push(s);
+    }
+    if(!reduceMotion){
+      setInterval(function(){
+        var k = Math.floor(Math.random()*N);
+        var s = spans[k];
+        var on = s.textContent==="1";
+        s.textContent = on ? "0" : "1";
+        s.classList.toggle("on", !on);
+      }, 350);
+    }
+  })();
+
+  /* ---------- W1: bits interativos ---------- */
+  (function(){
+    var bits = [0,1,0,0,1,0,1,0];
+    var row = document.getElementById("bitsrow");
+    var sumEl = document.getElementById("bitsum");
+    var valEl = document.getElementById("bitval");
+    var btns = [];
+
+    bits.forEach(function(b, i){
+      var pw = Math.pow(2, 7-i);
+      var cell = el("div","bitcell");
+      cell.appendChild(el("span","pw", String(pw)));
+      var btn = el("button","bitbtn", String(b));
+      btn.setAttribute("aria-pressed", b ? "true" : "false");
+      btn.setAttribute("aria-label","Bit que vale "+pw);
+      btn.addEventListener("click", function(){
+        bits[i] = bits[i] ? 0 : 1;
+        btn.textContent = String(bits[i]);
+        btn.setAttribute("aria-pressed", bits[i] ? "true" : "false");
+        render();
+      });
+      cell.appendChild(btn);
+      row.appendChild(cell);
+      btns.push(btn);
+    });
+
+    function render(){
+      var total = 0, parts = [];
+      bits.forEach(function(b,i){
+        if(b){ var pw = Math.pow(2,7-i); total += pw; parts.push(pw); }
+      });
+      valEl.textContent = String(total);
+      sumEl.textContent = parts.length ? bits.join("") + "  =  " + parts.join(" + ") + "  =" : "00000000  =  0  — todos desligados";
+    }
+    render();
+  })();
+
+  /* ---------- CHIP: transistor ---------- */
+  (function(){
+    var svg = document.getElementById("transistor");
+    var btn = document.getElementById("gatebtn");
+    var NS = "http://www.w3.org/2000/svg";
+    function mk(tag, attrs){
+      var e = document.createElementNS(NS, tag);
+      for(var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+    var wireL  = mk("line",{x1:40,y1:95,x2:238,y2:95,"stroke-linecap":"round"});
+    var wireR  = mk("line",{x1:282,y1:95,x2:418,y2:95,"stroke-linecap":"round"});
+    var bridge = mk("line",{x1:242,y1:95,x2:278,y2:95,"stroke-linecap":"round","stroke-width":4});
+    var gateRect = mk("rect",{x:236,y:62,width:48,height:66,rx:8,fill:"var(--amber-soft)",stroke:"var(--amber)","stroke-width":2});
+    var stem = mk("line",{x1:260,y1:30,x2:260,y2:62,"stroke-width":3});
+    var dot  = mk("circle",{cx:260,cy:22,r:7});
+    var lamp = mk("circle",{cx:462,cy:95,r:32,"stroke-width":2.5});
+    var lampTxt = mk("text",{x:462,y:104,"text-anchor":"middle","font-size":24,"font-weight":700});
+    var lblIn   = mk("text",{x:40,y:127,"font-size":13,fill:"var(--ink-2)"});
+    var lblGate = mk("text",{x:260,y:150,"text-anchor":"middle","font-size":13,fill:"var(--ink-2)"});
+    var lblOut  = mk("text",{x:462,y:150,"text-anchor":"middle","font-size":13,fill:"var(--ink-2)"});
+    lblIn.textContent = "corrente";
+    lblGate.textContent = "portão";
+    lblOut.textContent = "saída";
+    [wireL,wireR,gateRect,bridge,stem,dot,lamp,lampTxt,lblIn,lblGate,lblOut].forEach(function(e){ svg.appendChild(e); });
+
+    function render(on){
+      var wire = on ? "var(--accent)" : "var(--line)";
+      [wireL,wireR].forEach(function(w){
+        w.setAttribute("stroke", wire);
+        w.setAttribute("stroke-width", on ? 4 : 3);
+        w.classList.toggle("flowline", on);
+      });
+      bridge.setAttribute("stroke", on ? "var(--accent)" : "transparent");
+      stem.setAttribute("stroke", on ? "var(--amber)" : "var(--line)");
+      dot.setAttribute("fill", on ? "var(--amber)" : "var(--line)");
+      lamp.setAttribute("fill", on ? "var(--green-soft)" : "var(--panel-2)");
+      lamp.setAttribute("stroke", on ? "var(--green)" : "var(--line)");
+      lampTxt.setAttribute("fill", on ? "var(--green)" : "var(--ink-2)");
+      lampTxt.textContent = on ? "1" : "0";
+    }
+    btn.addEventListener("click", function(){
+      var on = btn.getAttribute("aria-pressed") === "true";
+      btn.setAttribute("aria-pressed", on ? "false" : "true");
+      btn.textContent = on ? "Aplicar energia no portão" : "Cortar a energia do portão";
+      render(!on);
+    });
+    render(false);
+  })();
+
+  /* ---------- CHIP: portas lógicas ---------- */
+  (function(){
+    var A = document.getElementById("gA"), B = document.getElementById("gB");
+    var opAND = document.getElementById("opAND"), opOR = document.getElementById("opOR");
+    var lamp = document.getElementById("glamp"), rule = document.getElementById("gaterule");
+    var st = { a:1, b:0, op:"AND" };
+    function bindBit(btn, key){
+      btn.addEventListener("click", function(){
+        st[key] = st[key] ? 0 : 1;
+        btn.textContent = String(st[key]);
+        btn.setAttribute("aria-pressed", st[key] ? "true" : "false");
+        render();
+      });
+    }
+    bindBit(A,"a"); bindBit(B,"b");
+    opAND.addEventListener("click", function(){ st.op = "AND"; render(); });
+    opOR.addEventListener("click", function(){ st.op = "OR"; render(); });
+    function render(){
+      opAND.setAttribute("aria-pressed", st.op === "AND" ? "true" : "false");
+      opOR.setAttribute("aria-pressed", st.op === "OR" ? "true" : "false");
+      var out = st.op === "AND" ? (st.a && st.b) : (st.a || st.b);
+      lamp.textContent = out ? "1" : "0";
+      lamp.classList.toggle("on", !!out);
+      rule.textContent = st.op === "AND"
+        ? "Porta E: a saída só liga quando A e B estão ligados ao mesmo tempo."
+        : "Porta OU: a saída liga quando pelo menos um dos dois está ligado.";
+    }
+    render();
+  })();
+
+  /* ---------- CHIP: corrida CPU × GPU ---------- */
+  (function(){
+    var cpu = document.getElementById("cpugrid"), gpu = document.getElementById("gpugrid");
+    var cs = document.getElementById("cpusteps"), gs = document.getElementById("gpusteps");
+    var btn = document.getElementById("racebtn"), msg = document.getElementById("racemsg");
+    var cpuCells = [], gpuCells = [];
+    for(var i=0;i<100;i++){
+      var a = document.createElement("i"), b = document.createElement("i");
+      cpu.appendChild(a); cpuCells.push(a);
+      gpu.appendChild(b); gpuCells.push(b);
+    }
+    var timer = null;
+    btn.addEventListener("click", function(){
+      if(timer) return;
+      cpuCells.forEach(function(c){ c.classList.remove("done"); });
+      gpuCells.forEach(function(c){ c.classList.remove("done"); });
+      msg.textContent = "";
+      cs.textContent = "rodadas: 0";
+      gs.textContent = "rodadas: 0";
+      if(reduceMotion){
+        cpuCells.forEach(function(c){ c.classList.add("done"); });
+        gpuCells.forEach(function(c){ c.classList.add("done"); });
+        cs.textContent = "rodadas: 25";
+        gs.textContent = "rodadas: 1";
+        msg.textContent = "Mesmo resultado — 25 rodadas contra 1.";
+        return;
+      }
+      var tick = 0;
+      btn.disabled = true;
+      timer = setInterval(function(){
+        tick++;
+        if(tick === 1){
+          gpuCells.forEach(function(c){ c.classList.add("done"); });
+          gs.textContent = "rodadas: 1";
+        }
+        for(var k=(tick-1)*4; k<Math.min(tick*4,100); k++) cpuCells[k].classList.add("done");
+        cs.textContent = "rodadas: " + tick;
+        if(tick >= 25){
+          clearInterval(timer); timer = null; btn.disabled = false;
+          msg.textContent = "Mesmo resultado — 25 rodadas contra 1.";
+        }
+      }, 150);
+    });
+  })();
+
+  /* ---------- W2: texto em números ---------- */
+  (function(){
+    var input = document.getElementById("txtin");
+    var out = document.getElementById("charcards");
+    function render(){
+      out.innerHTML = "";
+      var s = input.value || "OLÁ";
+      Array.from(s).forEach(function(ch){
+        var cp = ch.codePointAt(0);
+        var bin = cp.toString(2);
+        bin = bin.padStart(bin.length > 8 ? 16 : 8, "0");
+        var card = el("div","charcard");
+        card.appendChild(el("div","ch", ch === " " ? "␣" : ch));
+        card.appendChild(el("div","cd", String(cp)));
+        card.appendChild(el("div","bn", bin));
+        out.appendChild(card);
+      });
+    }
+    input.addEventListener("input", render);
+    render();
+  })();
+
+  /* ---------- W3: pixels ---------- */
+  (function(){
+    var pattern = [
+      "............",
+      "...######...",
+      "..#......#..",
+      ".#........#.",
+      ".#..#..#..#.",
+      ".#........#.",
+      ".#........#.",
+      ".#.#....#.#.",
+      ".#..####..#.",
+      "..#......#..",
+      "...######...",
+      "............"
+    ];
+    var map = { ".": 235, "#": 45 };
+    var grid = document.getElementById("pixgrid");
+    var read = document.getElementById("pixread");
+    var toggle = document.getElementById("pixtoggle");
+
+    pattern.forEach(function(rowStr, r){
+      Array.from(rowStr).forEach(function(c, col){
+        var v = map[c];
+        var cell = el("div", null, String(v));
+        cell.style.background = "rgb("+v+","+v+","+v+")";
+        cell.style.setProperty("--px-ink", v > 128 ? "#444" : "#ddd");
+        cell.style.color = "transparent";
+        function show(){
+          read.innerHTML = "linha "+(r+1)+", coluna "+(col+1)+"<br>valor: <b>"+v+"</b> &nbsp;(<span style='color:var(--accent-ink)'>"+v.toString(2).padStart(8,"0")+"</span>)";
+        }
+        cell.addEventListener("mouseenter", show);
+        cell.addEventListener("click", show);
+        grid.appendChild(cell);
+      });
+    });
+    toggle.addEventListener("click", function(){
+      var on = toggle.getAttribute("aria-pressed") === "true";
+      toggle.setAttribute("aria-pressed", on ? "false" : "true");
+      toggle.textContent = on ? "Mostrar os números" : "Esconder os números";
+      grid.classList.toggle("shownums", !on);
+      if(!on){
+        grid.querySelectorAll("div").forEach(function(c){ c.style.color = ""; });
+      } else {
+        grid.querySelectorAll("div").forEach(function(c){ c.style.color = "transparent"; });
+      }
+    });
+  })();
+
+  /* ---------- W4: neurônio ---------- */
+  (function(){
+    var svg = document.getElementById("neuron");
+    var nin = document.getElementById("nin"), nw = document.getElementById("nw");
+    var ninv = document.getElementById("ninv"), nwv = document.getElementById("nwv");
+    var NS = "http://www.w3.org/2000/svg";
+
+    function mk(tag, attrs){
+      var e = document.createElementNS(NS, tag);
+      for(var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+    // estrutura estática
+    var edge = mk("line", {x1:150,y1:85,x2:410,y2:85,"stroke-linecap":"round"});
+    var cIn  = mk("circle",{cx:105,cy:85,r:45,fill:"var(--accent-soft)",stroke:"var(--accent)","stroke-width":2});
+    var cOut = mk("circle",{cx:455,cy:85,r:45,fill:"var(--green-soft)",stroke:"var(--green)","stroke-width":2});
+    var tIn  = mk("text",{x:105,y:92,"text-anchor":"middle","font-size":20,"font-weight":700,fill:"var(--ink)"});
+    var tOut = mk("text",{x:455,y:92,"text-anchor":"middle","font-size":20,"font-weight":700,fill:"var(--ink)"});
+    var lIn  = mk("text",{x:105,y:155,"text-anchor":"middle","font-size":13,fill:"var(--ink-2)"});
+    var lOut = mk("text",{x:455,y:155,"text-anchor":"middle","font-size":13,fill:"var(--ink-2)"});
+    var wBg  = mk("rect",{x:230,y:52,width:100,height:30,rx:15,fill:"var(--amber-soft)"});
+    var tW   = mk("text",{x:280,y:73,"text-anchor":"middle","font-size":16,"font-weight":700,fill:"var(--amber)"});
+    lIn.textContent = "entrada"; lOut.textContent = "saída";
+    svg.appendChild(edge); svg.appendChild(cIn); svg.appendChild(cOut);
+    svg.appendChild(tIn); svg.appendChild(tOut); svg.appendChild(lIn); svg.appendChild(lOut);
+    svg.appendChild(wBg); svg.appendChild(tW);
+
+    function render(){
+      var x = parseFloat(nin.value), w = parseFloat(nw.value);
+      var y = x * w;
+      ninv.textContent = fmt1(x); nwv.textContent = fmt1(w);
+      tIn.textContent = fmt1(x);
+      tOut.textContent = fmt2(y);
+      tW.textContent = "× " + fmt1(w);
+      edge.setAttribute("stroke", w >= 0 ? "var(--accent)" : "var(--red)");
+      edge.setAttribute("stroke-width", String(1.5 + Math.abs(w)*4));
+    }
+    nin.addEventListener("input", render);
+    nw.addEventListener("input", render);
+    render();
+  })();
+
+  /* ---------- rede multi-camadas (estática, gerada) ---------- */
+  (function(){
+    var svg = document.getElementById("net");
+    var NS = "http://www.w3.org/2000/svg";
+    var layers = [3,5,5,2];
+    var xs = [70, 220, 370, 500];
+    var H = 240;
+    var pos = layers.map(function(n, li){
+      var arr = [];
+      for(var i=0;i<n;i++){
+        arr.push({x: xs[li], y: H/2 + (i - (n-1)/2) * 42});
+      }
+      return arr;
+    });
+    // arestas
+    for(var l=0;l<layers.length-1;l++){
+      pos[l].forEach(function(a){
+        pos[l+1].forEach(function(b){
+          var e = document.createElementNS(NS,"line");
+          e.setAttribute("x1",a.x); e.setAttribute("y1",a.y);
+          e.setAttribute("x2",b.x); e.setAttribute("y2",b.y);
+          e.setAttribute("stroke","var(--line)");
+          e.setAttribute("stroke-width","1");
+          svg.appendChild(e);
+        });
+      });
+    }
+    // nós
+    pos.forEach(function(layer, li){
+      layer.forEach(function(p){
+        var c = document.createElementNS(NS,"circle");
+        c.setAttribute("cx",p.x); c.setAttribute("cy",p.y); c.setAttribute("r",12);
+        c.setAttribute("fill", li===0 ? "var(--accent-soft)" : li===layers.length-1 ? "var(--green-soft)" : "var(--panel-2)");
+        c.setAttribute("stroke", li===0 ? "var(--accent)" : li===layers.length-1 ? "var(--green)" : "var(--ink-2)");
+        c.setAttribute("stroke-width","1.5");
+        svg.appendChild(c);
+      });
+    });
+  })();
+
+  /* ---------- W7: escala ---------- */
+  (function(){
+    var box = document.getElementById("scalerows");
+    var MAX = 14; // log10 do maior
+    var rows = [
+      { nm:"Um neurônio artificial", sub:"a peça da bancada acima", v:1, lbl:"1" },
+      { nm:"A redezinha do diagrama", sub:"", v:55, lbl:"55" },
+      { nm:"GPT-2 (2019)", sub:"primeiro texto fluente", v:1.5e9, lbl:"1,5 bilhão" },
+      { nm:"GPT-3 (2020)", sub:"a base do primeiro ChatGPT", v:1.75e11, lbl:"175 bilhões" },
+      { nm:"Modelos de fronteira (2025)", sub:"estimativas públicas", v:1.8e12, lbl:"~2 trilhões" },
+      { nm:"Cérebro humano", sub:"sinapses — só para comparar", v:1e14, lbl:"~100 trilhões", brain:true }
+    ];
+    rows.forEach(function(r){
+      var row = el("div","scalerow" + (r.brain ? " brain" : ""));
+      var nm = el("div","nm", r.nm);
+      if(r.sub){ nm.appendChild(el("small", null, r.sub)); }
+      var tr = el("div","tr");
+      var pct = Math.max(1.5, (Math.log10(r.v) / MAX) * 82);
+      tr.style.setProperty("--w", pct + "%");
+      tr.appendChild(el("i"));
+      tr.appendChild(el("b", null, r.lbl));
+      row.appendChild(nm); row.appendChild(tr);
+      box.appendChild(row);
+    });
+  })();
+
+  /* ---------- W5: aprender é ajustar ---------- */
+  (function(){
+    var svg = document.getElementById("fitplot");
+    var NS = "http://www.w3.org/2000/svg";
+    var pts = [[1,0.9],[2,1.3],[3,2.6],[4,2.7],[5,4.1],[6,4.2],[7,5.6],[8,5.7],[9,7.1],[10,7.4]];
+    var W=560, H=300, PAD=34;
+    var XMAX=10.8, YMAX=9;
+    function sx(x){ return PAD + x/XMAX*(W-2*PAD); }
+    function sy(y){ return H-PAD - y/YMAX*(H-2*PAD); }
+    function mk(tag, attrs){
+      var e = document.createElementNS(NS, tag);
+      for(var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+    // eixos
+    svg.appendChild(mk("line",{x1:sx(0),y1:sy(0),x2:sx(10.6),y2:sy(0),stroke:"var(--line)","stroke-width":1.5}));
+    svg.appendChild(mk("line",{x1:sx(0),y1:sy(0),x2:sx(0),y2:sy(8.8),stroke:"var(--line)","stroke-width":1.5}));
+    // reta do modelo
+    var lineEl = mk("line",{stroke:"var(--amber)","stroke-width":3,"stroke-linecap":"round"});
+    svg.appendChild(lineEl);
+    // resíduos
+    var resGroup = mk("g",{});
+    svg.appendChild(resGroup);
+    // pontos
+    pts.forEach(function(p){
+      svg.appendChild(mk("circle",{cx:sx(p[0]),cy:sy(p[1]),r:5,fill:"var(--accent)"}));
+    });
+    var slider = document.getElementById("fw");
+    var out = document.getElementById("fwv");
+    var errout = document.getElementById("errout");
+    var errbar = document.getElementById("errbar");
+    var btn = document.getElementById("trainbtn");
+    var BEST = 0.754;
+
+    function render(){
+      var w = parseFloat(slider.value);
+      out.textContent = fmt2(w);
+      lineEl.setAttribute("x1", sx(0)); lineEl.setAttribute("y1", sy(0));
+      var yEnd = Math.max(-1, Math.min(9, w*10.4));
+      lineEl.setAttribute("x2", sx(10.4)); lineEl.setAttribute("y2", sy(yEnd));
+      // resíduos + erro
+      resGroup.innerHTML = "";
+      var err = 0;
+      pts.forEach(function(p){
+        var pred = w*p[0];
+        err += Math.abs(p[1]-pred);
+        var l = mk("line",{
+          x1:sx(p[0]), y1:sy(p[1]), x2:sx(p[0]), y2:sy(Math.max(-0.4,Math.min(8.9,pred))),
+          stroke:"var(--red)","stroke-width":1.5,"stroke-dasharray":"3 3",opacity:.7
+        });
+        resGroup.appendChild(l);
+      });
+      err /= pts.length;
+      errout.textContent = fmt2(err);
+      errbar.style.width = Math.min(100, err/4*100) + "%";
+    }
+    slider.addEventListener("input", render);
+
+    var training = false;
+    btn.addEventListener("click", function(){
+      if(training) return;
+      if(reduceMotion){
+        slider.value = String(BEST); render(); return;
+      }
+      training = true; btn.disabled = true;
+      function step(){
+        var w = parseFloat(slider.value);
+        var d = BEST - w;
+        if(Math.abs(d) < 0.006){
+          slider.value = String(BEST); render();
+          training = false; btn.disabled = false;
+          return;
+        }
+        slider.value = String(w + d*0.12);
+        render();
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+    render();
+  })();
+
+  /* ---------- W6: próxima palavra ---------- */
+  (function(){
+    var START = "A menina abriu a";
+    var L1 = [
+      { w:"porta", p:45 },
+      { w:"janela", p:23 },
+      { w:"caixa", p:14 },
+      { w:"boca", p:9 },
+      { w:"geladeira", p:5 }
+    ];
+    var L2 = {
+      "porta": [
+        { w:"devagar", p:38 }, { w:"com cuidado", p:27 },
+        { w:"e olhou para fora", p:22 }, { w:"sem fazer barulho", p:13 }
+      ],
+      "janela": [
+        { w:"do quarto", p:41 }, { w:"e sentiu o vento", p:25 },
+        { w:"para respirar", p:20 }, { w:"com esforço", p:14 }
+      ],
+      "caixa": [
+        { w:"de brinquedos", p:36 }, { w:"com curiosidade", p:28 },
+        { w:"e encontrou uma carta", p:23 }, { w:"devagar", p:13 }
+      ],
+      "boca": [
+        { w:"para falar", p:40 }, { w:"de espanto", p:26 },
+        { w:"e não disse nada", p:21 }, { w:"num sorriso", p:13 }
+      ],
+      "geladeira": [
+        { w:"procurando algo", p:37 }, { w:"e pegou o suco", p:29 },
+        { w:"por costume", p:20 }, { w:"sem fome", p:14 }
+      ]
+    };
+    var sent = document.getElementById("senttext");
+    var bars = document.getElementById("probbars");
+    var reset = document.getElementById("probreset");
+    var state;
+
+    function renderBars(options, onPick){
+      bars.innerHTML = "";
+      options.forEach(function(o){
+        var b = el("button","probbar");
+        var fill = el("span","fill");
+        var lbl = el("span","lbl");
+        var word = el("b", null, o.w);
+        var pc = el("span","pc", o.p + "%");
+        lbl.appendChild(word); lbl.appendChild(pc);
+        b.appendChild(fill); b.appendChild(lbl);
+        b.addEventListener("click", function(){ onPick(o.w); });
+        bars.appendChild(b);
+        // anima o preenchimento
+        var target = o.p + "%";
+        if(reduceMotion){ fill.style.width = target; }
+        else { requestAnimationFrame(function(){ requestAnimationFrame(function(){ fill.style.width = target; }); }); }
+      });
+    }
+
+    function start(){
+      state = { text: START, step: 0, key: null };
+      sent.textContent = START + " ";
+      reset.hidden = true;
+      renderBars(L1, function(w){
+        state.text += " " + w;
+        state.key = w;
+        sent.textContent = state.text + " ";
+        renderBars(L2[w], function(w2){
+          state.text += " " + w2;
+          sent.textContent = state.text + "…";
+          bars.innerHTML = "";
+          var done = el("p","note","E assim segue: o texto que o modelo acabou de escrever vira a entrada da próxima previsão, palavra após palavra, até a resposta inteira.");
+          bars.appendChild(done);
+          reset.hidden = false;
+        });
+      });
+    }
+    reset.addEventListener("click", start);
+    start();
+  })();
+
+  /* ---------- TIMELINE ---------- */
+  (function(){
+    var eras = [
+      {
+        t:"Fundações", s:"1943 – 1969",
+        items:[
+          { y:"1943", t:"O neurônio vira matemática", d:"Warren McCulloch e Walter Pitts descrevem o primeiro modelo matemático de um neurônio — a semente das redes neurais desta página." },
+          { y:"1950", t:"Turing pergunta: máquinas pensam?", d:"Alan Turing propõe o Jogo da Imitação (o \"Teste de Turing\"): se a conversa da máquina é indistinguível da humana, que diferença resta?" },
+          { y:"1956", t:"O nome \"Inteligência Artificial\"", d:"Na conferência de Dartmouth (EUA), John McCarthy cunha o termo e funda o campo como área de pesquisa.", hl:true },
+          { y:"1958", t:"Perceptron: a primeira máquina que aprende", d:"Frank Rosenblatt constrói uma máquina que ajusta seus próprios parâmetros a partir de exemplos — exatamente a ideia da Parte 5." },
+          { y:"1966", t:"ELIZA, o primeiro chatbot", d:"O programa de Joseph Weizenbaum simula um psicoterapeuta com truques de repetição. Pessoas se emocionam conversando com ele — para espanto do próprio autor." }
+        ]
+      },
+      {
+        t:"Invernos e persistência", s:"1969 – 1996",
+        items:[
+          { y:"1969", t:"O balde de água fria", d:"Minsky e Papert provam limites matemáticos do Perceptron. O entusiasmo (e o dinheiro) esfriam." },
+          { y:"1974", t:"O primeiro \"inverno da IA\"", d:"Promessas não cumpridas levam a cortes de financiamento nos EUA e no Reino Unido. O campo hiberna, mas não morre." },
+          { y:"1986", t:"Redes profundas ficam treináveis", d:"Rumelhart, Hinton e Williams popularizam a retropropagação — o método que ajusta milhões de parâmetros em camadas, viabilizando redes de verdade." }
+        ]
+      },
+      {
+        t:"As máquinas vencem os campeões", s:"1997 – 2016",
+        items:[
+          { y:"1997", t:"Deep Blue vence Kasparov", d:"Pela primeira vez um computador derrota o campeão mundial de xadrez em um duelo oficial. Ainda não era aprendizado — era força de cálculo — mas mudou o imaginário.", hl:true },
+          { y:"2011", t:"Watson e Siri", d:"O Watson (IBM) vence humanos no Jeopardy!; a Siri chega ao iPhone. A IA entra no bolso e no horário nobre." },
+          { y:"2012", t:"AlexNet: o aprendizado profundo decola", d:"Uma rede neural treinada em placas de vídeo (GPUs) pulveriza o recorde de reconhecimento de imagens. Começa a era do deep learning.", hl:true },
+          { y:"2016", t:"AlphaGo vence Lee Sedol", d:"O Go era considerado intocável por décadas. A jogada 37, \"criativa\" e não-humana, vira símbolo de um novo tipo de máquina." }
+        ]
+      },
+      {
+        t:"A era dos transformers", s:"2017 – hoje",
+        items:[
+          { y:"2017", t:"\"Attention Is All You Need\"", d:"Pesquisadores do Google publicam o Transformer — a arquitetura por trás de praticamente toda IA generativa atual, do ChatGPT aos geradores de imagem.", hl:true },
+          { y:"2020", t:"GPT-3: escala muda tudo", d:"Com 175 bilhões de parâmetros, o modelo escreve texto fluente sobre quase qualquer assunto. A receita: a mesma previsão de próxima palavra, em escala inédita." },
+          { y:"2022", t:"ChatGPT", d:"Uma interface de conversa sobre um modelo GPT alcança 100 milhões de usuários em dois meses — a adoção mais rápida da história até então. A IA vira assunto de almoço de domingo.", hl:true },
+          { y:"2023", t:"A corrida multimodal", d:"GPT-4, Claude, Gemini, Llama: modelos passam a ler e produzir texto, imagem e áudio, e chegam a escritórios, escolas e igrejas." },
+          { y:"2024", t:"Dois Nobels em um ano", d:"Hopfield e Hinton levam o Nobel de Física por redes neurais; Hassabis e Jumper, o de Química pelo AlphaFold, que prevê a estrutura de proteínas." },
+          { y:"2026", t:"Agentes: da resposta à tarefa", d:"A fronteira deixa de ser \"responder bem\" e passa a ser executar trabalhos de várias etapas — pesquisar, escrever, operar sistemas — com supervisão humana." }
+        ]
+      }
+    ];
+
+    var box = document.getElementById("timeline");
+    eras.forEach(function(era){
+      var eh = el("div","era");
+      eh.appendChild(el("div","span", era.s));
+      eh.appendChild(el("h3", null, era.t));
+      box.appendChild(eh);
+      era.items.forEach(function(it){
+        var item = el("div","tl-item" + (it.hl ? " hl" : ""));
+        item.appendChild(el("div","yr", it.y));
+        var bd = el("div","bd");
+        bd.appendChild(el("b", null, it.t));
+        var p = el("p", null, it.d);
+        bd.appendChild(p);
+        item.appendChild(bd);
+        box.appendChild(item);
+      });
+    });
+
+    if(!reduceMotion && "IntersectionObserver" in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(en.isIntersecting){ en.target.classList.add("vis"); io.unobserve(en.target); }
+        });
+      }, { rootMargin: "0px 0px -8% 0px" });
+      box.querySelectorAll(".tl-item").forEach(function(n){ io.observe(n); });
+    } else {
+      box.classList.remove("anim");
+    }
+  })();
+})();
+</script>
+
+</body>
+</html>
