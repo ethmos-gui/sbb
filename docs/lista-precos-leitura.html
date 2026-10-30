@@ -236,6 +236,7 @@ body{font-family:var(--sans);color:var(--texto);background:var(--fundo);line-hei
 .modal-precos .mp-pix .mp-v{font-size:1.15rem}
 #sel-trad option{color:#0f2133;background:#fff}
 
+.card-footer{flex-direction:column;align-items:stretch}.card-footer .card-ean{align-self:flex-end}.pay-rows{display:flex;flex-direction:column;gap:4px;margin-top:3px}.pay-row{display:flex;align-items:center;justify-content:space-between;gap:6px}.pay-cond{display:flex;flex-direction:column;line-height:1.1;white-space:nowrap}.pay-cond b{color:var(--laranja);font-size:.78rem}.pay-cond i{font-style:normal;font-weight:700;font-size:.66rem;color:#fff;background:var(--laranja);border-radius:8px;padding:0 5px;margin-left:2px}.pay-cond small{font-size:.58rem;color:var(--texto-claro)}.pay-v{font-weight:700;color:var(--laranja);font-size:1.02rem;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -285,11 +286,6 @@ body{font-family:var(--sans);color:var(--texto);background:var(--fundo);line-hei
         <option value="RVR">RVR</option>
       </select>
       <span class="filter-sep"></span>
-      <span class="filter-sep"></span>
-      <span class="filter-label">Pagamento:</span>
-      <button class="filter-btn pay-btn active" data-pay="2x" onclick="togglePay(this)">2&times; &middot; 30/60</button>
-      <button class="filter-btn pay-btn" data-pay="4x" onclick="togglePay(this)">4&times; &middot; 30/60/90/120</button>
-      <span class="filter-sep"></span>
       <button class="filter-btn" id="btn-view" onclick="toggleView(this)" title="Alternar entre cards e tabela">&#9776; Tabela</button>
     </div>
   </div>
@@ -321,7 +317,7 @@ body{font-family:var(--sans);color:var(--texto);background:var(--fundo);line-hei
   <small style="font-size:.65rem;color:#999;line-height:1.4;display:block;max-width:1000px;margin:8px auto 0">
   Esta tabela de refer&ecirc;ncia comercial &eacute; de uso exclusivo de clientes cadastrados da SBB e n&atilde;o constitui oferta, proposta comercial ou compromisso de venda.
   Pre&ccedil;os, descontos e condi&ccedil;&otilde;es s&atilde;o meramente indicativos, podendo ser alterados a qualquer momento, sem aviso pr&eacute;vio.
-  O desconto exibido corresponde &agrave; condi&ccedil;&atilde;o comercial exclusiva negociada com Livrarias Leitura, conforme a forma de pagamento selecionada no topo (2&times; = 30/60 dias; 4&times; = 30/60/90/120 dias) &mdash;
+  O desconto exibido corresponde &agrave; condi&ccedil;&atilde;o comercial exclusiva negociada com Livrarias Leitura, conforme a forma de pagamento (2&times; = 30/60 dias e 4&times; = 30/60/90/120 dias, ambas exibidas em cada item) &mdash;
   o pre&ccedil;o final, o desconto efetivo e o estoque ser&atilde;o confirmados no momento do pedido. Condi&ccedil;&otilde;es a prazo sujeitas a an&aacute;lise de cr&eacute;dito.
   O pre&ccedil;o final, o desconto efetivo e a disponibilidade de estoque ser&atilde;o definidos exclusivamente no momento da formaliza&ccedil;&atilde;o do pedido
   junto &agrave; sua regional ou consultor comercial, prevalecendo as condi&ccedil;&otilde;es acordadas nessa negocia&ccedil;&atilde;o.
@@ -554,7 +550,7 @@ function renderCard(p){
    +'<div class="card-footer">'
    +(hasDsc?'<span class="price-stack">'
      +'<span class="price-de"><span class="price-tag">De</span> <span class="card-price-old">'+formatPrice(p["$"])+'</span></span>'
-     +'<span class="price-por"><span class="price-tag">Por</span> <span class="card-price card-price-promo">'+formatPrice(p["$d"])+'</span> <span class="card-price-pct">−'+pctOff(p)+'%</span></span>'
+     +payRows(p)
      +'</span>':'<span class="card-price">'+formatPrice(p["$"])+'</span>')
    +'<span class="card-ean">'+p.e+'</span>'
    +'</div>'
@@ -574,7 +570,7 @@ function renderTableRow(p){
    +'<td class="tbl-code">'+esc(p.c)+'</td>'
    +'<td class="tbl-cat">'+catBadge(p.k)+'</td>'
    +'<td class="tbl-price">'+(hasDsc?'<span class="card-price-old">'+formatPrice(p["$"])+'</span>':formatPrice(p["$"]))+'</td>'
-   +'<td class="tbl-price tbl-price-promo">'+(hasDsc?formatPrice(p["$d"])+' <span class="card-price-pct">\u2212'+pctOff(p)+'%</span>':"\u2014")+'</td>'
+   +(function(){if(!hasDsc)return '<td class="tbl-price">—</td><td class="tbl-price">—</td>';return ['$2','$4'].map(function(k){return '<td class="tbl-price tbl-price-promo">'+formatPrice(p[k])+' <span class="card-price-pct">−'+payPct(p,p[k])+'%</span></td>'}).join('')})()
    +'<td class="tbl-qcx">'+(p.q||"\u2014")+'</td>'
    +'<td class="tbl-ped" onclick="event.stopPropagation()"><input type="number" class="qty-input" data-ean="'+p.e+'" min="0" value="'+(getQty(p.e)||"")+'" onchange="setQty(this.dataset.ean,this.value)"></td>'
    +'</tr>';
@@ -583,7 +579,7 @@ function renderTableRow(p){
 function renderTable(prods){
   var html='<div class="prod-table-wrap"><table class="prod-table"><thead><tr>'
     +'<th></th><th>EAN</th><th>Descri\u00e7\u00e3o</th><th>C\u00f3d. SBB</th><th>Categoria</th>'
-    +'<th class="tbl-price">De</th><th class="tbl-price">Por</th><th>Qtd/Cx</th><th>Pedido</th>'
+    +'<th class="tbl-price">De</th><th class="tbl-price">2&times; 30/60</th><th class="tbl-price">4&times; 30/60/90/120</th><th>Qtd/Cx</th><th>Pedido</th>'
     +'</tr></thead><tbody>';
   prods.forEach(function(p){html+=renderTableRow(p)});
   html+='</tbody></table></div>';
@@ -744,15 +740,7 @@ function openModal(ean){
   document.getElementById("modal-title").textContent=p.c;
   var hasDsc=p["$d"]&&p["$d"]<p["$"]&&p["$d"]>0;
   var html='<div class="modal-cover"><img src="'+coverUrl(p.e)+'" data-ean="'+p.e+'" alt="" onload="this.parentElement.querySelector(\'.placeholder\').style.display=\'none\'" onerror="tryFallback(this)"><div class="placeholder" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:4rem;opacity:.25">\ud83d\udcd6</div></div>';
-  if(hasDsc){var d=pctOff(p),cheio=p["$"];
-    function pr(pp){return Math.round(cheio*(1-pp/100)*100)/100}
-    var c5=pr(Math.max(d-3,0)),c10=pr(Math.max(d-5,0));
-    html+='<table class="modal-precos">'
-     +'<tr><td>Preço cheio</td><td></td><td class="mp-v mp-cheio">'+formatPrice(cheio)+'</td></tr>'
-     +'<tr><td>Cartão até 5x</td><td class="mp-pct">−'+Math.max(d-3,0)+'%</td><td class="mp-v">'+formatPrice(c5)+'</td></tr>'
-     +'<tr><td>Cartão até 10x <small>sem juros</small></td><td class="mp-pct">−'+Math.max(d-5,0)+'%</td><td class="mp-v"><small>10× '+formatPrice(Math.round(c10*10)/100)+' · </small>'+formatPrice(c10)+'</td></tr>'
-     +'<tr class="mp-pix"><td>PIX</td><td class="mp-pct">−'+d+'%</td><td class="mp-v">'+formatPrice(p["$d"])+'</td></tr>'
-     +'</table>';}
+  if(hasDsc){html+='<table class="modal-precos">'+'<tr><td>Preço cheio</td><td></td><td class="mp-v mp-cheio">'+formatPrice(p["$"])+'</td></tr>'+'<tr class="mp-pix"><td>2× <small>30/60</small></td><td class="mp-pct">−'+payPct(p,p["$2"])+'%</td><td class="mp-v">'+formatPrice(p["$2"])+'</td></tr>'+'<tr class="mp-pix"><td>4× <small>30/60/90/120</small></td><td class="mp-pct">−'+payPct(p,p["$4"])+'%</td><td class="mp-v">'+formatPrice(p["$4"])+'</td></tr>'+'</table>';}
   else html+='<div class="modal-price">'+(hasDsc?'<span class="old"><span class="price-tag">De</span> '+formatPrice(p["$"])+'</span> <span class="price-tag">Por</span> '+formatPrice(p["$d"])+' <span class="card-price-pct">−'+pctOff(p)+'%</span>':formatPrice(p["$"]))+'</div>';
   if(p.b)html+='<div class="modal-embreve">EM BREVE — item em produção. Consulte prazo com a regional.</div>';
   html+='<dl class="modal-info">';
@@ -779,10 +767,9 @@ function closeModal(){
 }
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal()});
 
-var PAY="2x";
-try{var _sp=localStorage.getItem("sbb_pay");if(_sp==="4x")PAY="4x";}catch(e){}
-function applyPay(){for(var i=0;i<DATA.length;i++){var p=DATA[i];var v=(PAY==="4x"?p["$4"]:p["$2"]);if(v!==undefined)p["$d"]=v;}}
-function togglePay(btn){PAY=btn.getAttribute("data-pay");try{localStorage.setItem("sbb_pay",PAY)}catch(e){}var bs=document.querySelectorAll(".pay-btn");for(var i=0;i<bs.length;i++)bs[i].classList.toggle("active",bs[i].getAttribute("data-pay")===PAY);applyPay();renderNav();render();}
+function applyPay(){for(var i=0;i<DATA.length;i++){var p=DATA[i];if(p["$2"]!==undefined)p["$d"]=p["$2"];}}
+function payPct(p,v){return Math.round((1-v/p["$"])*100)}
+function payRows(p){return '<span class="pay-rows">'+[["2\u00d7","30/60","$2"],["4\u00d7","30/60/90/120","$4"]].map(function(c){var v=p[c[2]];return '<span class="pay-row"><span class="pay-cond"><span><b>'+c[0]+'</b> <i>\u2212'+payPct(p,v)+'%</i></span><small>'+c[1]+'</small></span>'+'<span class="pay-v">'+formatPrice(v)+'</span></span>'}).join("")+'</span>'}
 // Init
 try{
   document.querySelector('.filter-btn[data-cat="all"]').classList.add("active");
@@ -794,8 +781,6 @@ try{
     btnView.classList.toggle("active",viewMode==="table");
   }
   applyPay();
-  var pbs=document.querySelectorAll(".pay-btn");
-  for(var pi=0;pi<pbs.length;pi++)pbs[pi].classList.toggle("active",pbs[pi].getAttribute("data-pay")===PAY);
   renderNav();
   render();
 }catch(err){
